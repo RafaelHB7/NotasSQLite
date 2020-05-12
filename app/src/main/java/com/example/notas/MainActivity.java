@@ -1,49 +1,71 @@
 package com.example.notas;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import android.text.InputType;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    Notas nota;
-    EditText editText;
+    ListView listView;
+    Nota listaNotas[] = new Nota[256];
+    int indice = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.editText = findViewById(R.id.editText);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText input = new EditText(this);
+        builder.setTitle("Digite sua nova nota: ");
+        builder.setView(input);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String novaNota = input.getText().toString();
+                SalvarNota(novaNota);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
 
-        nota = new Notas(this);
+        listView = findViewById(R.id.listView);
+
+        listaNotas[0] = new Nota("Mensagem teste");
+
+        NotaAdapter notaAdapter = new NotaAdapter(
+                getApplicationContext(),
+                R.layout.nota,
+                listaNotas
+        );
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Nota salva com sucesso!", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                nota.salvaNota(editText.getText().toString());
+                builder.show();
             }
         });
     }
 
-    protected void onStart() {
-        super.onStart();
-        editText.setText(nota.recuperaNota());
-    }
-
-    protected void onPause() {
-        super.onPause();
-        nota.salvaNota(editText.getText().toString());
+    public void SalvarNota(String novaNota){
+        Nota nota = new Nota(novaNota);
+        listaNotas[indice] = nota;
+        indice++;
     }
 }
