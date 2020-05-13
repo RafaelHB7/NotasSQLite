@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ListView listView;
-    Nota listaNotas[] = new Nota[256];
+    ArrayList<Nota> listaNotas = new ArrayList<>();
     int indice = 1;
 
     @Override
@@ -27,26 +27,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final EditText input = new EditText(this);
-        builder.setTitle("Digite sua nova nota: ");
-        builder.setView(input);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String novaNota = input.getText().toString();
-                SalvarNota(novaNota);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
 
         listView = findViewById(R.id.listView);
-
-        listaNotas[0] = new Nota("Mensagem teste");
 
         NotaAdapter notaAdapter = new NotaAdapter(
                 getApplicationContext(),
@@ -54,10 +36,30 @@ public class MainActivity extends AppCompatActivity {
                 listaNotas
         );
 
+        listView.setAdapter(notaAdapter);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
+                builder.setTitle("Digite sua nova nota: ");
+                final EditText input = new EditText(MainActivity.this);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String novaNota = input.getText().toString();
+                        SalvarNota(novaNota);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
                 builder.show();
             }
         });
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void SalvarNota(String novaNota){
         Nota nota = new Nota(novaNota);
-        listaNotas[indice] = nota;
-        indice++;
+        listaNotas.add(nota);
     }
 }
