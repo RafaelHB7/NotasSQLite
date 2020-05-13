@@ -1,7 +1,10 @@
 package com.example.notas;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<Nota> listaNotas = new ArrayList<>();
-    int indice = 1;
+    SQLiteDatabase bd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         listView.setAdapter(notaAdapter);
+
+        bd = openOrCreateDatabase("bd", MODE_PRIVATE, null);
+        bd.execSQL("CREATE TABLE IF NOT EXISTS notas (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR);");
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -68,5 +74,19 @@ public class MainActivity extends AppCompatActivity {
     public void SalvarNota(String novaNota){
         Nota nota = new Nota(novaNota);
         listaNotas.add(nota);
+        ContentValues notaValue = new ContentValues();
+        notaValue.put("",novaNota);
+        bd.insert("notas",null, notaValue);
+    }
+
+    protected void onStart() {
+        super.onStart();
+        Cursor dataset = bd.rawQuery("SELECT * FROM notas", null);
+
+        dataset.moveToFirst();
+
+        while (!dataset.isAfterLast()){
+            listaNotas.add(new Nota(dataset.getString(0)));
+        }
     }
 }
